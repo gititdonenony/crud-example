@@ -31,14 +31,40 @@ public class EmployeeServiceImplementation implements EmployeeService {
         Optional<Employee> employee = employeeRepository.findById(id);
         if (employee.isEmpty()) {
             throw new EmployeeNotFoundException("Employee with id: " + id + " not found");
+        } else {
+            return EmployeeMapper.mapToEmployeeDTO(employee.get());
         }
-        return EmployeeMapper.mapToEmployeeDTO(employee.get());
     }
 
     @Override
     public List<EmployeeDTO> getAllEmployees() {
         List<Employee> employees = employeeRepository.findAll();
         return employees.stream().map(EmployeeMapper::mapToEmployeeDTO).collect(Collectors.toList());
+    }
+
+    @Override
+    public EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO) throws EmployeeNotFoundException {
+
+        Optional<Employee> employee = employeeRepository.findById(id);
+        if (employee.isEmpty()) {
+            throw new EmployeeNotFoundException("Employee with id: " + id + " not found");
+        } else {
+            Employee employeeToUpdate = employee.get();
+            employeeToUpdate.setName(employeeDTO.getName());
+            employeeToUpdate.setDepartment(employeeDTO.getDepartment());
+            employeeRepository.save(employeeToUpdate);
+            return EmployeeMapper.mapToEmployeeDTO(employeeToUpdate);
+        }
+    }
+
+    @Override
+    public void deleteEmployee(Long id) throws EmployeeNotFoundException {
+        Optional<Employee> employee = employeeRepository.findById(id);
+        if (employee.isEmpty()) {
+            throw new EmployeeNotFoundException("Employee with id: " + id + " not found");
+        } else {
+            employeeRepository.deleteById(id);
+        }
     }
 }
 
